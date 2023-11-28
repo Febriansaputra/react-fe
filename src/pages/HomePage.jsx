@@ -6,6 +6,7 @@ import { addToCart } from "../redux/actions/actionCart";
 import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 const HomePage = () => {
+  const cart = useSelector((state) => state.cart.cartItems);
   const [searchTerm, setSearchTerm] = useState("");
   const [data, setData] = useState([]);
   const navigate = useNavigate();
@@ -38,9 +39,10 @@ const HomePage = () => {
     if (selectedItem) {
       const items = [
         {
-          _id: selectedItem._id,
+          _id: {product: {_id:selectedItem._id}},
           qty: 1,
         },
+        ...cart
       ];
   
       dispatch(addToCart(items))
@@ -61,7 +63,6 @@ const HomePage = () => {
 
   
   // const cartItems = useSelector((state) => state.cart.cartItems);
-  const cart = useSelector((state) => state.cart.cartItems);
   // const totalItems = cartItems.length;
 
   return (
