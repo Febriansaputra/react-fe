@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Select from "react-select";
 import { Col, Container, Form, Row } from "react-bootstrap";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AddAddressPage = () => {
   // const [validated, setValidated] = useState(false);
@@ -18,16 +19,9 @@ const AddAddressPage = () => {
   const [districtsSelect, setDistrictsSelect] = useState("");
   const [villagesSelect, setVillagesSelect] = useState("");
   const [detailsSelect, setDetailsSelect] = useState("");
+  const token = localStorage.getItem("authToken");
 
-  const [allData, setAllData] = useState({
-    nama: "",
-    provinsi: "",
-    kabupaten: "",
-    kecamatan: "",
-    kelurahan: "",
-    detail: "",
-  });
-
+  const history = useNavigate();
   const handleSubmit = async (event) => {
     event.preventDefault();
     const selectedProvince = dataProvinces.find(
@@ -56,7 +50,9 @@ const AddAddressPage = () => {
 
     try {
       await axios
-        .post("http://localhost:3000/api/delivery-address", submitAddress)
+        .post("http://localhost:3000/api/delivery-addresses", submitAddress, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
         .then((response) => {
           console.log("Address added : ", response.data);
           // setAllData({
@@ -68,16 +64,11 @@ const AddAddressPage = () => {
           //   detail: "",
           // });
         });
+
+      history("/hello/address");
     } catch (error) {
       console.error(error, " errrrrr bang");
     }
-
-    // const form = event.currentTarget;
-    // if (form.checkValidity() === false) {
-    //   event.preventDefault();
-    //   event.stopPropagation();
-    // }
-    // setValidated(true);
 
     console.log("ini select coba");
   };

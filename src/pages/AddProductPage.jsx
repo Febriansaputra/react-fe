@@ -1,109 +1,96 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { Col, Container, Form, Row } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-
 const AddProductPage = () => {
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState(null);
-  const [tag, setTag] = useState("");
-  const [category, setCategory] = useState("");
+  const token = localStorage.getItem("authToken");
 
-  // const [categorySelect, setCategorySelect] = useState("");
-  // const [tagSelect, setTagSelect] = useState("");
+  const [product, setProduct] = useState({
+    name: "",
+    description: "",
+    price: 0,
+    category: "",
+    tags: [],
+  });
+  const [categories, setCategories] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [image, setImage] = useState(null);
 
+  const history = useNavigate();
 
+  useEffect(() => {
+    // Fetch categories and tags from the server
+    const fetchData = async () => {
+      const categoryResponse = await axios.get(
+        "http://localhost:3000/api/categories",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const tagResponse = await axios.get("http://localhost:3000/api/tags", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCategories(categoryResponse.data.data);
+      setTags(tagResponse.data.data);
+    };
+
+    fetchData();
+  }, [token]);
+
+  const handleCategoryChange = (selectedOption) => {
+    setProduct((prevProduct) => ({
+      ...prevProduct,
+      category: selectedOption,
+    }));
+  };
+
+  const handleTagsChange = (selectedOptions) => {
+    setProduct((prevProduct) => ({
+      ...prevProduct,
+      tags: selectedOptions,
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const formData = new FormData();
-    formData.append("name", name);
-    formData.append("price", price);
-    formData.append("description", description);
-
-    if (imageUrl) {
-      formData.append("imageUrl", imageUrl);
-    }
-    if (tag) {
-      formData.append("tag", tag);
-    }
-    if (category) {
-      formData.append("category", category);
-    }
+    formData.append("image_url", image);
+    formData.append("name", product.name);
+    formData.append("description", product.description);
+    formData.append("price", product.price);
+    formData.append("category", product.category.value);
+    formData.append(
+      "tags",
+      JSON.stringify(product.tags.map((tag) => tag.value))
+    );
 
     try {
-      const response = await fetch("http://localhost:3000/api/product", {
-        method: "POST",
-        body: formData,
+      await axios.post("http://localhost:3000/api/products", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
       });
-      console.log('Respon dari server:', response.data);
-      if (response.ok) {
-        setName("");
-        setPrice("");
-        setDescription("");
-        setImageUrl("");
-        setTag("");
-        setCategory("");
-        console.log('berhasi;', response)
-      } else {
-        console.error("failed to add product");
-      }
+      console.log("Product added successfully");
+      history("/");
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error adding product:", error);
     }
-
-    // const selectedCategory = await category.find(
-    //   (categories) => categories.value === category
-    // );
-    // const selectedTag = await tag.find((tags) => tags.value === tag);
-    // console.log(selectedCategory);
-    // console.log(selectedTag);
-    console.log("ini select coba");
-  };
-
-  const getCategory = async () => {
-    const response = await fetch("http://localhost:3000/api/categories");
-    // console.log("Data Category", response.json());
-    const category = await response.json();
-    const result = category.data.map((data) => {
-      return {
-        label: data.name,
-        value: data._id,
-      };
-    });
-    console.log("data Category", result);
-    setCategory(result.sort((a, b) => a.label.localeCompare(b.label)));
-  };
-  const getTags = async () => {
-    const response = await fetch("http://localhost:3000/api/tags");
-    const tag = await response.json();
-    const result = tag.data.map((data) => {
-      return {
-        label: data.name,
-        value: data._id,
-      };
-    });
-    console.log("data Tag", result);
-    setTag(result.sort((a, b) => a.label.localeCompare(b.label)));
-  };
-  useEffect(() => {
-    getCategory();
-    getTags();
-  }, []);
-  const handleImageChange = (e) => {
-    setImageUrl(e.target.files[0]);
   };
 
   return (
     <div className="homepage">
-      <header className="w-100 min-vh-100 pt-5">
+      <header className="w-100 min-vh-100 d-flex align-items-center">
         <Container>
-          <Row className="header-box pt-5">
+          <Row className="header-box">
             <Col lg="12">
               <h3 className="mb-4 text-center">
-                Create! your product <span> ..</span>
+                Create! your <span style={{ color: "red" }}>product ... </span>
               </h3>
             </Col>
             <Form onSubmit={handleSubmit} className="d-flex">
@@ -111,11 +98,12 @@ const AddProductPage = () => {
                 <Form.Group className="mb-3" as={Col} lg="6" md="6" sm="12">
                   <Form.Label>Nama Product</Form.Label>
                   <Form.Control
-                    name="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
                     type="text"
-                    placeholder="Name .."
+                    name="name"
+                    value={product.name}
+                    onChange={(e) =>
+                      setProduct({ ...product, name: e.target.value })
+                    }
                     required
                   />
                   <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
@@ -124,6 +112,7 @@ const AddProductPage = () => {
                   <Form.Label>Image</Form.Label>
                   <Form.Control
                     type="file"
+                    name="image_url"
                     onChange={handleImageChange}
                     required
                   />
@@ -134,10 +123,12 @@ const AddProductPage = () => {
                 <Form.Group className="mb-3" as={Col} lg="6" md="6" sm="12">
                   <Form.Label>Price</Form.Label>
                   <Form.Control
-                    name="price"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
                     type="number"
+                    name="price"
+                    value={product.price}
+                    onChange={(e) =>
+                      setProduct({ ...product, price: e.target.value })
+                    }
                     required
                     placeholder="Price .."
                   />
@@ -150,11 +141,14 @@ const AddProductPage = () => {
                     Tag
                   </Form.Label>
                   <Select
-                    name="tag"
-                    options={tag}
-                    onChange={(e) => setTag(e.value)}
-                    autoFocus
-                    placeholder="Select Tag ..."
+                    options={tags.map((tag) => ({
+                      value: tag._id,
+                      label: tag.name,
+                    }))}
+                    value={product.tags}
+                    isMulti
+                    onChange={handleTagsChange}
+                    placeholder="Select Tags ..."
                   ></Select>
                   <Form.Control.Feedback type="invalid">
                     Please choose a Tag.
@@ -165,9 +159,12 @@ const AddProductPage = () => {
                     Category
                   </Form.Label>
                   <Select
-                    name="category"
-                    options={category}
-                    onChange={(e) => setCategory(e.value)}
+                    options={categories.map((category) => ({
+                      value: category._id,
+                      label: category.name,
+                    }))}
+                    value={product.category}
+                    onChange={handleCategoryChange}
                     autoFocus
                     placeholder="Select Category ..."
                   ></Select>
@@ -175,7 +172,7 @@ const AddProductPage = () => {
                     Please choose a Category.
                   </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" as={Col} lg="6" md="6" sm="12">
                   <Form.Check
                     required
                     id="done"
@@ -188,8 +185,10 @@ const AddProductPage = () => {
                   <Form.Label>Description</Form.Label>
                   <Form.Control
                     name="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={product.description}
+                    onChange={(e) =>
+                      setProduct({ ...product, description: e.target.value })
+                    }
                     type="text"
                     as="textarea"
                     required

@@ -39,7 +39,7 @@ const NavbarComponent = () => {
       .catch((error) => {
         return error.status(400).send({
           message: "Invalid credentials",
-        })
+        });
       });
   };
   useEffect(() => {
@@ -67,7 +67,7 @@ const NavbarComponent = () => {
       <Navbar expand="lg" className={changeColor ? "color-active" : ""}>
         <Container>
           <Navbar.Brand href="/" className="fs-4 fw-bold">
-          GulungTikar Store
+            GulungTikar <span style={{ color: "red" }}>Store</span>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
@@ -90,9 +90,10 @@ const NavbarComponent = () => {
             </Nav>
             {userData || loggedIn ? (
               <div className="text-center d-flex align-items-center">
-                <Link to="/profil">
-                  <button className="btn btn-outline-danger mx-2 border-0">
-                    hello, {full_name} !
+                <Link to="/hello/profile" style={{ textDecoration: "none" }}>
+                  <button className="btn btn-danger rounded-1 me-2 d-flex">
+                    <i className="bi bi-person-circle pe-2"></i>
+                    {full_name}
                   </button>
                 </Link>
                 <Link to="/">

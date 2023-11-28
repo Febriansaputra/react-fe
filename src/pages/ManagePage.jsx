@@ -6,18 +6,19 @@ import { InputTags } from "react-bootstrap-tagsinput";
 const ManagePage = () => {
   const [categories, setCategories] = useState("");
   const [tags, setTags] = useState("");
+  const token = localStorage.getItem("authToken");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       await axios
-        .post("http://localhost:3000/api/categories")
+        .post("http://localhost:3000/api/categories", categories, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
         .then((response) => {
           console.log("Created Categories Successfully : ", response.data);
-          setCategories({
-            category: "",
-          });
+          // setCategories("");
         })
         .catch((error) => {
           console.log("Created categories failed: ", error);
@@ -25,14 +26,15 @@ const ManagePage = () => {
     } catch (error) {
       return error, "Categories failed: ", error;
     }
+
     try {
       await axios
-        .post("http://localhost:3000/api/tags", tags)
+        .post("http://localhost:3000/api/tags", tags, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
         .then((response) => {
           console.log("Created Tags Successfully : ", response.data);
-          setTags({
-            tags: "",
-          });
+          // setTags("");
         })
         .catch((error) => {
           console.log("Created Tags failed: ", error);
@@ -57,11 +59,9 @@ const ManagePage = () => {
                 <Form.Group className="mb-3" as={Col} md="8">
                   <Form.Label>Category</Form.Label>
                   <Form.Control
-                    onChange={(e) => setCategories(e.value)}
+                    onChange={(e) => setCategories(e.target.value)}
                     value={categories}
-                    name="name"
                     type="text"
-                    required
                     placeholder="Category .."
                   />
                   <Form.Control.Feedback type="invalid">
@@ -73,7 +73,6 @@ const ManagePage = () => {
                   <InputGroup size="md" className="mb-3">
                     <InputTags
                       className="form-control !bg-transparent"
-                      name="tags"
                       style={{ border: "1px solid red" }}
                       placeholder="Tags .."
                       onTags={(value) => setTags(value.values)}
@@ -82,7 +81,6 @@ const ManagePage = () => {
                       className="btn btn-outline-danger"
                       type="button"
                       onChange={(e) => setTags(e.value)}
-                      name="tag"
                       value={tags}
                       data-testid="button-clearAll"
                       onClick={() => {
@@ -96,18 +94,8 @@ const ManagePage = () => {
                     </Form.Control.Feedback>
                   </InputGroup>
                 </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Check
-                    required
-                    id="done"
-                    label="Agree to terms and conditions"
-                    feedback="You must agree before submitting."
-                    feedbackType="invalid"
-                  />
-                </Form.Group>
                 <button
                   type="submit"
-                  // onClick={handleLogin}
                   className="btn btn-sm btn-danger btn-lg rounded-1 me-2"
                 >
                   Created!
