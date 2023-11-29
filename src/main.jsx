@@ -8,7 +8,7 @@ import store from './redux/store.js'
 
 //bootstrap CSS styles
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./dist/css/main.css";
+// import "./dist/css/main.css";
 // import store from "./services/store.js";
 
 ReactDOM.createRoot(document.getElementById("root")).render(

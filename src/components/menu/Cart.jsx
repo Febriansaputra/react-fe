@@ -1,6 +1,6 @@
 import { Col, Table } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { removeAllCart, removeCartItem } from "../../redux/actions/actionCart";
+import { getCart, removeAllCart, removeCartItem } from "../../redux/actions/actionCart";
 import { useEffect } from "react";
 
 const Cart = () => {
@@ -19,8 +19,8 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    console.log("Cart Items:", cartItems);
-  }, [cartItems]);
+    dispatch(getCart());
+  }, []);
   console.log(cartItems, " sad");
 
   return (

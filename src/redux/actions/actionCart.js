@@ -4,6 +4,23 @@ import axios from "axios";
 const token = localStorage.getItem("authToken");
 console.log(token, "ini chaunima");
 
+export const getCart = createAsyncThunk(
+  "cart/getList",
+  async (_, thunkAPI) => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3000/api/carts",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ errorMessage: error.message });
+    }
+  }
+);
+
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async (items, thunkAPI) => {
