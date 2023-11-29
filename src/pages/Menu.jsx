@@ -1,6 +1,6 @@
 import { Col, Container, Nav, Navbar, Row } from "react-bootstrap";
 import "../components/menu/style/menu.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Profile from "../components/menu/Profile";
 import Address from "../components/menu/Address";
@@ -10,11 +10,22 @@ import Product from "../components/menu/Product";
 import Category from "../components/menu/Category";
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import Tag from "../components/menu/Tag";
+import toast from "react-hot-toast";
 
 const Menu = () => {
   const [selectedComponent, setSelectedComponent] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (localStorage.getItem("authToken")) {
+      return;
+    } else {
+      setTimeout(() => toast.success("anda belum login!"), 3000);
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const handleNavItemClick = (componentName) => {
     setSelectedComponent(componentName);
@@ -40,6 +51,8 @@ const Menu = () => {
         return <Product />;
       case "Category":
         return <Category />;
+      case "Tag":
+        return <Tag />;
       default:
         return null;
     }
@@ -148,7 +161,7 @@ const Menu = () => {
                       className="menu"
                       as={Link}
                       to="/hello/tags"
-                      onClick={() => handleNavItemClick("Tags")}
+                      onClick={() => handleNavItemClick("Tag")}
                     >
                       <p
                         className={`nav_link ${

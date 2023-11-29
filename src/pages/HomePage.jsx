@@ -2,10 +2,11 @@ import { Card, Col, Container, Form, Row } from "react-bootstrap";
 import Heroine from "../assets/foodhero.png";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../redux/actions/actionCart";
+import { addToCart, getCart } from "../redux/actions/actionCart";
 import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 const HomePage = () => {
+  const carts = useSelector((state) => state.cart.cartItems);
   const [searchTerm, setSearchTerm] = useState("");
   const [data, setData] = useState([]);
   const navigate = useNavigate();
@@ -27,42 +28,44 @@ const HomePage = () => {
     };
     getData();
   }, []);
-
   //redux
   const dispatch = useDispatch();
 
   const handleAddToCart = (_id) => {
     // Misalnya, Anda memiliki _id item yang terkait dengan tombol yang diklik
     const selectedItem = data.find((item) => item._id === _id);
-  
+
     if (selectedItem) {
-      const items = [
-        {
-          _id: selectedItem._id,
-          qty: 1,
-        },
-      ];
-  
-      dispatch(addToCart(items))
+      const cartPayload = carts.map(({ product, qty }) => ({
+        productId: product._id,
+        qty: product._id === _id ? qty + 1 : qty,
+      }));
+
+      const isProductExistOnCart = cartPayload.some(
+        ({ productId }) => productId === _id
+      );
+      if (!isProductExistOnCart) cartPayload.push({ productId: _id, qty: 1 });
+
+      dispatch(addToCart(cartPayload))
         .unwrap()
         .then((result) => {
-          console.log('Added to cart:', result);
+          console.log("Added to cart:", result);
+          dispatch(getCart());
           toast.success("Successfully added to cart!");
         })
         .catch((error) => {
-          console.error('Error adding to cart:', error);
+          console.error("Error adding to cart:", error);
           toast.error("Failed to add to cart!");
         });
     } else {
-      console.error('Item not found');
+      console.error("Item not found");
       toast.error("Item not found!");
     }
   };
 
-  
-  // const cartItems = useSelector((state) => state.cart.cartItems);
-  const cart = useSelector((state) => state.cart.cartItems);
-  // const totalItems = cartItems.length;
+  useEffect(() => {
+    dispatch(getCart());
+  }, []);
 
   return (
     <div className="homepage">
@@ -138,6 +141,7 @@ const HomePage = () => {
                   <Card.Img
                     style={{
                       marginBottom: "-1rem",
+                      minHeight: "14rem",
                       maxHeight: "13rem",
                       objectFit: "cover",
                     }}
@@ -198,7 +202,7 @@ const HomePage = () => {
           <button>
             <i className="bi bi-cart-check"></i>
           </button>
-          <p>{cart?.length ? <span>{cart.length}</span> : <></>}</p>
+          <p>{carts?.length ? <span>{carts.length}</span> : <></>}</p>
         </div>
       </Link>
     </div>

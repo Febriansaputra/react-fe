@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Col, Table } from "react-bootstrap";
+import toast, { Toaster } from "react-hot-toast";
 import { Link } from "react-router-dom";
 
 const Product = () => {
@@ -49,13 +50,14 @@ const Product = () => {
     if (isConfirmed) {
       try {
         const response = await axios.delete(
-          `http://localhost:3000/api/delivery-addresses/${id}`,
+          `http://localhost:3000/api/products/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
         console.log("Data sudah ilang", response.data);
         setRefetchIndicator((prevValue) => !prevValue);
+        toast.success("Successfully delete address!");
       } catch (error) {
         console.error("Error deleting product:", error);
       }
@@ -69,6 +71,33 @@ const Product = () => {
         <p>Login dulu laa ..</p>
       ) : (
         <>
+          <Toaster
+            position="right"
+            reverseOrder={false}
+            gutter={1}
+            containerClassName=""
+            containerStyle={{
+              marginBottom: "7rem",
+            }}
+            toastOptions={{
+              // Define default options
+              className: "",
+              duration: 5000,
+              style: {
+                background: "#363636",
+                color: "#fff",
+              },
+
+              // Default options for specific types
+              success: {
+                duration: 3000,
+                theme: {
+                  primary: "green",
+                  secondary: "black",
+                },
+              },
+            }}
+          />
           <Col lg="12" className="flex-coloum pb-2">
             <h5 style={{ fontWeight: 600 }}>
               Product <span style={{ color: "red" }}> {full_name} !</span>{" "}

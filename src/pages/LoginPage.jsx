@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Col, Container, Form, Row } from "react-bootstrap";
+import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
@@ -12,6 +13,13 @@ const LoginPage = () => {
       [e.target.name]: e.target.value,
     });
   };
+
+  useEffect(() => {
+    if (localStorage.getItem("authToken")) {
+      setTimeout(() => toast.success("anda sudah login!"), 3000);
+      navigate("/");
+    }
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -35,6 +43,8 @@ const LoginPage = () => {
           localStorage.setItem("authName", full_name);
           localStorage.setItem("authEmail", email);
           localStorage.setItem("authRole", role);
+          toast.success("login! berhasil");
+
           navigate("/");
         }
       })
@@ -43,32 +53,36 @@ const LoginPage = () => {
       });
   };
 
-  // const [formData, setFormData] = useState({
-  //   email: "",
-  //   password: "",
-  // });
-
-  // const handleChange = (e) => {
-  //   setFormData({ ...formData, [e.target.name]: e.target.value });
-  // };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     const response = await axios.post(
-  //       "http://localhost:3000/auth/login",
-  //       formData
-  //     );
-  //     console.log("Login successful:", response.data);
-  //     navigate("/");
-  //   } catch (error) {
-  //     console.error("Login failed:", error);
-  //   }
-  // };
-
   return (
     <div className="homepage">
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        gutter={1}
+        containerClassName=""
+        // containerStyle={{
+        //   marginBottom: "2.7rem",
+        //   marginRight: "6.2rem",
+        // }}
+        toastOptions={{
+          // Define default options
+          className: "",
+          duration: 5000,
+          style: {
+            background: "#363636",
+            color: "#fff",
+          },
+
+          // Default options for specific types
+          success: {
+            duration: 3000,
+            theme: {
+              primary: "green",
+              secondary: "black",
+            },
+          },
+        }}
+      />
       <header className="w-100 min-vh-100 d-flex align-items-center">
         <Container>
           <Row className="header-box d-flex align-items-center">

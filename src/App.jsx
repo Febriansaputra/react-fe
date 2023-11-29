@@ -6,11 +6,11 @@ import RegisterPage from "./pages/RegisterPage";
 import Menu from "./pages/Menu";
 import AddProductPage from "./pages/AddProductPage";
 import AddAddressPage from "./pages/AddAddressPage";
-import ManagePage from "./pages/ManagePage";
 
 import FooterComponent from "./components/FooterComponent";
 import { useEffect } from "react";
 import axios from "axios";
+import ProductsList from "./components/ProductsList";
 
 function App() {
   const location = useLocation();
@@ -36,12 +36,12 @@ function App() {
       {!isLoginPage && <NavbarComponent />}
       <Routes>
         <Route path="/" Component={HomePage} />
+        <Route path="/product" Component={ProductsList} />
         <Route path="/login" Component={LoginPage} />
         <Route path="/register" Component={RegisterPage} />
         <Route path="/hello/*" element={<Menu />} />
         <Route path="/add-product" Component={AddProductPage} />
         <Route path="/add-address" Component={AddAddressPage} />
-        <Route path="/manage-cat-tag" Component={ManagePage} />
       </Routes>
       <FooterComponent />
     </>

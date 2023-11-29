@@ -28,8 +28,11 @@ const Category = () => {
           console.log("Category Created Successfully : ", response);
         });
       setRefetchIndicator((prevValue) => !prevValue);
+      toast.success("Successfully create category!");
     } catch (error) {
       console.error("Error adding categor: ", error);
+      toast.error("Anda bukan admin! failed to create category!");
+
     }
   };
 
@@ -44,7 +47,6 @@ const Category = () => {
   }, [token, refetchIndicator]);
 
   const handleDelete = async (id) => {
-    
     const isConfirmed = window.confirm(
       "Are you sure you want to delete this category?"
     );
@@ -58,8 +60,8 @@ const Category = () => {
           }
         );
         console.log("Data sudah ilang", response.data.data);
-        setRefetchIndicator((prevValue) => !prevValue);
         toast.success("Successfully delete category!");
+        setRefetchIndicator((prevValue) => !prevValue);
       } catch (error) {
         console.error("Error deleting product:", error);
       }
@@ -67,9 +69,9 @@ const Category = () => {
       console.log("Deletion canceled.");
     }
   };
+  const full_name = localStorage.getItem("authName");
 
   //toast
-  const create = () => toast.success("Successfully create category!");
   return (
     <>
       <Toaster
@@ -78,7 +80,7 @@ const Category = () => {
         gutter={1}
         containerClassName=""
         containerStyle={{
-          marginBottom: "7rem"
+          marginBottom: "7rem",
         }}
         toastOptions={{
           // Define default options
@@ -101,15 +103,18 @@ const Category = () => {
       />
       <Row className="header-box">
         <Col lg="12" className="pt-lg-0 pt-5 row">
-          <Form onSubmit={handleSubmit} className="d-flex">
+          <h5 style={{ fontWeight: 600 }}>
+            Category <span style={{ color: "red" }}> {full_name} !</span>{" "}
+          </h5>
+          <Form onSubmit={handleSubmit} className="d-flex mb-3">
             <Col lg="6">
               <InputGroup>
                 <InputGroup.Text id="basic-addon1">
                   <i className="bi bi-bookmark-fill"></i>
                 </InputGroup.Text>
                 <Form.Control
-                  placeholder="Username"
-                  aria-label="Username"
+                  placeholder="Category"
+                  aria-label="Category"
                   aria-describedby="basic-addon1"
                   value={category.name}
                   onChange={(e) => setCategory(e.target.value)}
@@ -118,17 +123,13 @@ const Category = () => {
             </Col>
             <button
               type="submit"
-              className="btn btn-sm btn-danger btn-lg rounded-1"
-              onClick={create}
+              className="btn btn-sm btn-success btn-lg rounded-3 ms-2"
             >
               Created!
             </button>
           </Form>
         </Col>
-        <h6>
-          List <span>Category</span>
-        </h6>
-        <Col lg="12" className="pt-lg-0 pt-5 row">
+        <Col lg="12">
           <Table striped bordered hover>
             <thead>
               <tr>

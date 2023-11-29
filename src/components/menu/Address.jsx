@@ -69,6 +69,9 @@ const Address = () => {
       console.log("Deletion canceled.");
     }
   };
+  const handleCreate = () => {
+
+  }
   return (
     <>
       {userData ? (
@@ -107,7 +110,7 @@ const Address = () => {
               Address <span style={{ color: "red" }}> {full_name} !</span>{" "}
             </h5>
             <Link to={"/add-address"}>
-              <button className="btn btn-sm btn-success">
+              <button className="btn btn-sm btn-success" onClick={handleCreate}>
                 <i className="bi bi-plus-circle pe-2"></i>
                 Create Address
               </button>
@@ -124,6 +127,7 @@ const Address = () => {
                   <th>Aksi</th>
                 </tr>
               </thead>
+              
               <tbody>
                 {addressData.map((item, index) => (
                   <tr key={item._id}>
