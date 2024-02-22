@@ -90,7 +90,7 @@ const NavbarComponent = () => {
             </Nav>
             {userData || loggedIn ? (
               <div className="text-center d-flex align-items-center">
-                <Link to="/hello/profile" style={{ textDecoration: "none" }}>
+                <Link to="/shop" style={{ textDecoration: "none" }}>
                   <button className="btn btn-danger rounded-1 me-2 d-flex">
                     <i className="bi bi-person-circle pe-2"></i>
                     {full_name}

@@ -1,49 +1,40 @@
 import { Col, Table } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  decreaseQuantity,
   getCart,
-  removeAllCart,
-  removeCartItem,
+  increaseQuantity,
 } from "../../redux/actions/actionCart";
 import { useEffect } from "react";
-import {
-  decreaseQuantity,
-  increaseQuantity,
-} from "../../redux/reducers/reducerCart";
 
-const Cart = () => {
+const Cart = ({ onButtonClick }) => {
   const cartItems = useSelector((state) => state.cart.cartItems);
   const dispatch = useDispatch();
   const full_name = localStorage.getItem("authName");
   let total = 0;
-  const handleRemoveItem = (productId) => {
-    dispatch(removeCartItem(productId));
+
+  const handleIncreaseQuantity = (productId, currentQuantity) => {
+    console.log(productId,currentQuantity, "increse page");
+    dispatch(increaseQuantity({ productId, currentQuantity }));
   };
 
-  const handleRemoveAll = () => {
-    dispatch(removeAllCart());
-  };
-  const handleDecrease = (itemId) => {
-    dispatch(decreaseQuantity(itemId));
-  };
-  const handleIncrease = (itemId) => {
-    dispatch(increaseQuantity(itemId));
+  const handleDecreaseQuantity = (productId, currentQuantity) => {
+
+    dispatch(decreaseQuantity({ productId, currentQuantity }));
   };
 
   useEffect(() => {
     dispatch(getCart());
   }, []);
-  console.log("Cart Items:", cartItems);
+  console.log(cartItems, " Carts");
 
   return (
     <>
       <Col lg="12" className="flex-coloum pb-2">
         <h5 style={{ fontWeight: 600 }}>
-          Address <span style={{ color: "red" }}> {full_name} !</span>{" "}
+          Cart <span style={{ color: "red" }}> {full_name} !</span>{" "}
         </h5>
-        <button className="btn btn-danger btn-sm" onClick={handleRemoveAll}>
-          Remove All
-        </button>
+        <button className="btn btn-danger btn-sm">Remove All</button>
       </Col>
       <Col lg="12">
         <Table
@@ -83,14 +74,14 @@ const Cart = () => {
                   <td style={{ color: "red" }}>Rp. {item.price}</td>
                   <td>
                     <button
-                      onClick={() => handleDecrease(item.product)}
+                      onClick={() => handleDecreaseQuantity(item._id, item.qty)} // Misalnya, pengurangan 1 unit
                       className="btn btn-sm btn-danger me-2"
                     >
                       -
                     </button>
                     {item.qty}
                     <button
-                      onClick={() => handleIncrease(item.product)}
+                      onClick={() => handleIncreaseQuantity(item._id, item.qty)} // Misalnya, penambahan 1 unit
                       className="btn btn-sm btn-success ms-2"
                     >
                       +
@@ -98,10 +89,7 @@ const Cart = () => {
                   </td>
                   <td style={{ color: "red" }}>Rp. {subtotal}</td>
                   <td>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleRemoveItem(item.id)}
-                    >
+                    <button className="btn btn-sm btn-danger">
                       <i className="bi bi-trash3-fill"></i>
                     </button>
                   </td>
@@ -114,7 +102,7 @@ const Cart = () => {
             </tr>
           </tbody>
         </Table>
-        <button className="btn btn-success btn-sm">
+        <button onClick={onButtonClick} className="btn btn-success btn-sm">
           <i className="bi bi-credit-card"></i> payment
         </button>
       </Col>

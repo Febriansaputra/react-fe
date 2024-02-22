@@ -7,10 +7,29 @@ import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 const HomePage = () => {
   const carts = useSelector((state) => state.cart.cartItems);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [data, setData] = useState([]);
+  const [dataTags, setDataTags] = useState([]);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const getTags = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/api/tags`);
+        if (!response.ok) {
+          throw new Error(
+            `This is an HTTP error: The status is ${response.status}`
+          );
+        }
+        let actualData = await response.json();
+        setDataTags(actualData.data);
+      } catch (error) {
+        setDataTags(null);
+      }
+    };
+    getTags();
+  }, []);
   useEffect(() => {
     const getData = async () => {
       try {
@@ -32,7 +51,7 @@ const HomePage = () => {
   const dispatch = useDispatch();
 
   const handleAddToCart = (_id) => {
-    // Misalnya, Anda memiliki _id item yang terkait dengan tombol yang diklik
+    //  _id item yang terkait dengan tombol yang diklik
     const selectedItem = data.find((item) => item._id === _id);
 
     if (selectedItem) {
@@ -40,6 +59,7 @@ const HomePage = () => {
         productId: product._id,
         qty: product._id === _id ? qty + 1 : qty,
       }));
+      console.log(cartPayload, "Add Successfully");
 
       const isProductExistOnCart = cartPayload.some(
         ({ productId }) => productId === _id
@@ -48,14 +68,16 @@ const HomePage = () => {
 
       dispatch(addToCart(cartPayload))
         .unwrap()
-        .then((result) => {
-          console.log("Added to cart:", result);
+        .then(() => {
           dispatch(getCart());
           toast.success("Successfully added to cart!");
         })
         .catch((error) => {
           console.error("Error adding to cart:", error);
-          toast.error("Failed to add to cart!");
+          toast.error("Failed to add to cart! Login dulu");
+          setTimeout(() => {
+            navigate("/login");
+          },3000);
         });
     } else {
       console.error("Item not found");
@@ -66,6 +88,9 @@ const HomePage = () => {
   useEffect(() => {
     dispatch(getCart());
   }, []);
+
+  // const cartItems = useSelector((state) => state.cart.cartItems);
+  // const totalItems = cartItems.length;
 
   return (
     <div className="homepage">
@@ -134,6 +159,18 @@ const HomePage = () => {
               />
             </Col>
           </Row>
+          <Row>
+            <Col className="d-flex mt-4">
+              <p>Category : </p>
+              {dataTags?.map((item) => (
+                <div key={item._id}>
+                  <button style={{ marginLeft: 10 }} className="btn btn-danger">
+                    {item.name}
+                  </button>
+                </div>
+              ))}
+            </Col>
+          </Row>
           <Row className="mt-5 d-flex align-items-center justify-content-center">
             {data?.map((item) => (
               <Col lg="3" md="4" sm="6" key={item._id} className="mt-5">
@@ -197,7 +234,7 @@ const HomePage = () => {
         </Container>
       </div>
 
-      <Link to="/hello/cart">
+      <Link to="/shop">
         <div className="shopping-cart" onClick={() => navigate("/cart")}>
           <button>
             <i className="bi bi-cart-check"></i>

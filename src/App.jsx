@@ -7,7 +7,7 @@ import Menu from "./pages/Menu";
 import AddProductPage from "./pages/AddProductPage";
 import AddAddressPage from "./pages/AddAddressPage";
 
-import FooterComponent from "./components/FooterComponent";
+// import FooterComponent from "./components/FooterComponent";
 import { useEffect } from "react";
 import axios from "axios";
 import ProductsList from "./components/ProductsList";
@@ -39,11 +39,11 @@ function App() {
         <Route path="/product" Component={ProductsList} />
         <Route path="/login" Component={LoginPage} />
         <Route path="/register" Component={RegisterPage} />
-        <Route path="/hello/*" element={<Menu />} />
+        <Route path="/shop/*" element={<Menu onCartButtonClick/>} />
         <Route path="/add-product" Component={AddProductPage} />
         <Route path="/add-address" Component={AddAddressPage} />
       </Routes>
-      <FooterComponent />
+      {/* <FooterComponent /> */}
     </>
   );
 }

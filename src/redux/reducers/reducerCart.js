@@ -2,8 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   addToCart,
   getCart,
-  removeAllCart,
-  removeCartItem,
+  updateQuantityOnServer,
 } from "../actions/actionCart";
 
 const cartSlice = createSlice({
@@ -13,20 +12,7 @@ const cartSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {
-    decreaseQuantity: (state, action) => {
-      state.cartItems = state.cartItems.map((item) =>
-        item.product === action.payload
-          ? { ...item, qty: Math.max(1, item.qty - 1) }
-          : item
-      );
-    },
-    increaseQuantity: (state, action) => {
-      state.cartItems = state.cartItems.map((item) =>
-        item.product === action.payload ? { ...item, qty: item.qty + 1 } : item
-      );
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(getCart.pending, (state) => {
@@ -53,34 +39,12 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      //
-      .addCase(removeCartItem.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(removeCartItem.fulfilled, (state, action) => {
-        state.loading = false;
-        state.cartItems = action.payload;
-      })
-      .addCase(removeCartItem.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-      //
-      .addCase(removeAllCart.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(removeAllCart.fulfilled, (state, action) => {
-        state.loading = false;
-        state.cartItems = action.payload;
-      })
-      .addCase(removeAllCart.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
+      .addCase(updateQuantityOnServer.fulfilled, (state, action) => {
+        const { productId, qty } = action.payload;
+        state.cartItems = state.cartItems.map((item) =>
+          item.product._id === productId ? { ...item, qty } : item
+        );
       });
   },
 });
-
-export const { decreaseQuantity, increaseQuantity } = cartSlice.actions;
 export default cartSlice.reducer;
