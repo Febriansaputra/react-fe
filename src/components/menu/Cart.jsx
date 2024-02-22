@@ -1,11 +1,13 @@
 import { Col, Table } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  addToCart,
   decreaseQuantity,
   getCart,
   increaseQuantity,
 } from "../../redux/actions/actionCart";
 import { useEffect } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
 const Cart = ({ onButtonClick }) => {
   const cartItems = useSelector((state) => state.cart.cartItems);
@@ -23,10 +25,53 @@ const Cart = ({ onButtonClick }) => {
     dispatch(decreaseQuantity({ productId, currentQuantity }));
   };
 
+  const handleIncreaseDecrease = (cartId, increase = true) => {
+    //  _id item yang terkait dengan tombol yang diklik
+    const selectedItem = cartItems.find((cartItem) => cartItem._id === cartId);
+
+    // if selected item is 1 or less and decrease remove item from cart
+
+    if (selectedItem) {
+      const cartPayload = cartItems.map(({ _id, product, qty }) => {
+        let nextQty = qty
+        if(_id === cartId){
+          if(increase) nextQty += 1;
+          else nextQty -= 1;
+        }
+
+        return {
+          productId: product._id,
+          qty: nextQty,
+        }
+      })
+      .filter(({qty}) => qty >= 1); // hapus item yg qtynya kurang dari 1
+
+      console.log(cartPayload, cartItems, selectedItem, "Add Successfully");
+      // return;
+
+      dispatch(addToCart(cartPayload))
+        .unwrap()
+        .then(() => {
+          dispatch(getCart());
+          toast.success("Successfully added to cart!");
+        })
+        .catch((error) => {
+          console.error("Error adding to cart:", error);
+          toast.error("Failed to add to cart! Login dulu");
+          setTimeout(() => {
+            navigate("/login");
+          },3000);
+        });
+    } else {
+      console.error("Item not found");
+      toast.error("Item not found!");
+    }
+  };
+
   useEffect(() => {
     dispatch(getCart());
   }, []);
-  console.log(cartItems, " Carts");
+  console.log(cartItems, "Carts");
 
   return (
     <>
@@ -74,14 +119,14 @@ const Cart = ({ onButtonClick }) => {
                   <td style={{ color: "red" }}>Rp. {item.price}</td>
                   <td>
                     <button
-                      onClick={() => handleDecreaseQuantity(item._id, item.qty)} // Misalnya, pengurangan 1 unit
+                      onClick={() => handleIncreaseDecrease(item._id, false)} // Misalnya, pengurangan 1 unit
                       className="btn btn-sm btn-danger me-2"
                     >
                       -
                     </button>
                     {item.qty}
                     <button
-                      onClick={() => handleIncreaseQuantity(item._id, item.qty)} // Misalnya, penambahan 1 unit
+                      onClick={() => handleIncreaseDecrease(item._id)} // Misalnya, penambahan 1 unit
                       className="btn btn-sm btn-success ms-2"
                     >
                       +
